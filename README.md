@@ -1,2 +1,4 @@
-# rocket-htmx-site
-This project is more about testing out a different approach in making websites. It's not hosted on github pages because its dynamic and you need to host it yourself via cargo.
+# Rust Rocket + HTMX site
+It's a work in progress without much functionality.
+Made this project to test out how to work with Rust for websites using Rocket.
+I could try using Trunk to make it a web application for the future (not guaranteed).
