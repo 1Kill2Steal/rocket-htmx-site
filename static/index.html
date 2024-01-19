@@ -1,0 +1,31 @@
+<!-- /static/index.html -->
+<!DOCTYPE HTML>
+<html>
+
+    <head>
+        <title>HTMX</title>
+
+        <link rel="stylesheet" type="text/css" href="style.css">
+
+        <!-- Cool font imo - JetBrains Nerd Mono -->
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100&display=swap" rel="stylesheet">
+
+        <!-- HTMX implementation -->
+        <script
+            src="https://unpkg.com/htmx.org@1.9.10"
+            integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
+            crossorigin="anonymous">
+        </script> 
+        <!-- END of HTMX implementation -->
+    </head>
+
+    <body>
+
+        <h1>Welcome to my Rust + HTMX App!</h1>
+        <div hx-get="/update" hx-trigger="click" hx-swap="innerHTML" id="main_btn">
+            Click me to update the content!
+        </div>
+
+    </body>
+
+</html>
