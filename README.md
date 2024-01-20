@@ -11,7 +11,7 @@ Made this project to test out how to work with Rust for websites using Rocket.
 2. Run `cargo run` OR `cargo run --release`
 
 ## TODO:
-### SQLite integration (when? I don't know...)
+### SQLite integration
 - TODO: implement the rusqlite data sign in and log in systems.
 
 ### A lot of UI Improvement
