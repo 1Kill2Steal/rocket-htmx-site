@@ -1,2 +1,2 @@
 /target
-main.db
+/src/database/users.db
