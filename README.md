@@ -12,9 +12,6 @@ Made this project to test out how to work with Rust for websites using Rocket.
 
 ## TODO:
 ### SQLite integration (when? I don't know...)
-- Made hashing and salting functions.
-- Made a functional struct for the HTML form.
-- Made the database schema with sqlite3.
 - TODO: implement the rusqlite data sign in and log in systems.
 
 ### A lot of UI Improvement
