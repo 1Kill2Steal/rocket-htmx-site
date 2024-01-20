@@ -3,7 +3,7 @@
 <html>
 
     <head>
-        <title>HTMX</title>
+        <title>Sign Up</title>
 
         <link rel="stylesheet" type="text/css" href="style.css">
 
@@ -23,14 +23,15 @@
 
         <div hx-get="/nav_content" hx-trigger="load"></div>
 
-        <h1>Welcome to my Rust + HTMX App!</h1>
-        <div hx-get="/update" hx-trigger="click" hx-swap="innerHTML" id="main_btn">
-            Click me to update the content!
-        </div>
+        <h1>Sign Up</h1>
 
-        <form>
-            <label for="username_input">Enter username:</label>
-            <input type="username" name="username_input" hx-post="/add_user">
+        <form hx-post="/user_signup">
+            <label for="username_input">Username:</label>
+            <input type="username" id="username" name="username_input" hx-post="/add_username"><br>
+            <label for="password_input">Password:</label>
+            <input type="password" id="password" name="password_input" hx-post="/add_password"><br>
+            <br>
+            <button type="submit">Submit</button>
         </form>
 
     </body>

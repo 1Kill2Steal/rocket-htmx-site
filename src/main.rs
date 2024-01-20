@@ -4,8 +4,12 @@
 
 #[macro_use] extern crate rocket;
 use rocket::response::content::RawHtml;
+use rocket::form::Form;
 
 use rusqlite::{Connection, Result};
+
+mod structs;
+use self::structs::structs::{ User };
 
 #[get("/nav_content")]
 fn nav_content() -> rocket::response::content::RawHtml<&'static str> {
@@ -28,6 +32,16 @@ fn nav_content() -> rocket::response::content::RawHtml<&'static str> {
 fn update() -> &'static str {
     "Updated content now!"
 }
+
+#[post("/user_sign_up", data = "<user>")]
+fn user_sign_up(user: Form<User>) {
+    //TODO...
+}
+#[post("/user_login", data = "<user>")]
+fn user_login(user: Form<User>) {
+    //TODO...
+}
+
 
 #[launch]
 fn rocket() -> _ {
