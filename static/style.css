@@ -1,4 +1,24 @@
 /* /static/style.css */
+
+/* stuff for desktop view. */
+@media (min-width: 767px) {
+  .nav_item {
+    width: 30vw;
+    font-size: 2.5rem;
+    display: inline-block;
+  }
+}
+
+/* stuff for mobile view. */
+@media (max-width: 767px) {
+  .nav_item {
+    font-size: 2.5rem;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+  }
+}
+
 body {
   background-color: #333;
   color: white;

@@ -1,4 +1,4 @@
-<!-- /static/index.html -->
+<!-- /static/login.html -->
 <!DOCTYPE HTML>
 <html>
 
@@ -20,11 +20,19 @@
     </head>
 
     <body>
+
         <div hx-get="/nav_content" hx-trigger="load"></div>
+
         <h1>Welcome to my Rust + HTMX App!</h1>
         <div hx-get="/update" hx-trigger="click" hx-swap="innerHTML" id="main_btn">
             Click me to update the content!
         </div>
+
+        <form>
+            <label for="username_input">Enter username:</label>
+            <input type="username" name="username_input" hx-post="/add_user">
+        </form>
+
     </body>
 
 </html>
