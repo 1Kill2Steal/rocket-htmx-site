@@ -1,12 +1,14 @@
-// /src/utils/utils.rs
+// /src/utils/hash_and_salt.rs
 
 // Used the docs implementation.
 // https://docs.rs/argon2/latest/argon2/
 
+// Hashing and Salting
+
 use argon2::{
     password_hash::{
         rand_core::OsRng,
-        PasswordHash, PasswordHasher, PasswordVerifier, SaltString
+        PasswordHasher, SaltString
     },
     Argon2
 };
@@ -26,4 +28,11 @@ pub fn hash_password(
 ) -> Result<String, argon2::password_hash::Error> {
     let password_hash = Argon2::default().hash_password(password, salt)?;
     Ok(password_hash.to_string())
+}
+
+pub fn extract_hash(hashed_password: &std::string::String) -> std::string::String {
+    let parts: Vec<&str> = hashed_password.split('$').collect();
+    let extracted_hash = format!("{}${}", parts[parts.len()-2], parts[parts.len() - 1]);
+
+    extracted_hash
 }
