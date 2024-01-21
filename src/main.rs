@@ -35,15 +35,22 @@ fn update() -> &'static str {
 }
 
 #[put("/user_sign_up", data = "<user>")]
-fn user_sign_up(
-    user: Form<User>
-) {
-    // TODO Connect to db
-
+fn user_sign_up(user: Form<User>) -> rocket::response::content::RawHtml<&'static str> {
     use self::utils::hash_and_salt::{generate_salt, hash_password, extract_hash};
-    use self::utils::database_connection::establish_connection;
+    use self::utils::database_connection::{establish_connection, find_user_by_username};
 
-    println!("User info: {:?}", user);
+    let conn = establish_connection();
+
+    if find_user_by_username(&conn, &user.username).is_some() {
+        return rocket::response::content::RawHtml(
+            r#"
+                <h2>Username already exists. Please choose a different one.</h2>
+            "#,
+        );
+    }
+
+
+    // println!("User info: {:?}", user);
     let generated_salt = generate_salt();
     match hash_password(user.password.as_bytes(), &generated_salt) {
         Ok(password_hash) => {
@@ -59,34 +66,29 @@ fn user_sign_up(
                 .secure(true)
                 .build();
 
-            if let Ok(conn) = establish_connection() {
-                println!("Connected to the database.");
-                println!("Cookie (not for eating): {}", login_cookie);
-                let current_user = User {
-                    username: user.username.to_string(),
-                    password: extracted_hash,
-                };
-                let _ = conn.execute(
-                    "INSERT INTO users (username, password_hash) VALUES (?1, ?2)",
-                    &[&current_user.username, &current_user.password],
-                );
-            }
-            /*
+            println!("Connected to the database.");
+            println!("Cookie (not for eating): {}", login_cookie);
+            println!("Username: {}", &user.username.to_string());
+            println!("Password: {}", &extracted_hash);
+            println!("Current working directory: {:?}", std::env::current_dir());
+            let _ = conn
+                .expect("User Info")
+                .execute(
+                "INSERT INTO users (username, password_hash) VALUES (?1, ?2)",
+                &[&user.username.to_string(), &extracted_hash],
+            );
             // I'm so lazy to write anything more meaningful than that
             return rocket::response::content::RawHtml(
                 r#"
                     <h2>Signed up!</h2>
                 "#,
             );
-            */
         }
         Err(err) => {
             eprintln!("Error generating the hashed password: {:?}", err);
-            /*
             return rocket::response::content::RawHtml(r#"
                 <h2>Internal error signing up...</h2>
             "#);
-            */
         }
     }
 }
