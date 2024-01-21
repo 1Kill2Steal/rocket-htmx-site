@@ -25,11 +25,11 @@
 
         <h1>Sign Up</h1>
 
-        <form hx-post="/user_signup">
-            <label for="username_input">Username:</label>
-            <input type="username" id="username" name="username_input" hx-post="/add_username"><br>
-            <label for="password_input">Password:</label>
-            <input type="password" id="password" name="password_input" hx-post="/add_password"><br>
+        <form hx-put="/user_sign_up">
+            <label for="username">Username:</label>
+            <input type="username" name="username"><br>
+            <label for="password">Password:</label>
+            <input type="password" name="password"><br>
             <br>
             <button type="submit">Submit</button>
         </form>
