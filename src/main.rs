@@ -2,19 +2,21 @@
 
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 use rocket::form::Form;
 // TODO - make a cookie with the hashed password
-use rocket::http::{ Cookie };
+use rocket::http::{Cookie, CookieJar};
 
 mod structs;
-use self::structs::structs::{ User };
+use self::structs::structs::User;
 mod utils;
 // use self::utils::redirects::{ homepage_redirect };
 
 #[get("/nav_content")]
 fn nav_content() -> rocket::response::content::RawHtml<&'static str> {
-    rocket::response::content::RawHtml(r#"
+    rocket::response::content::RawHtml(
+        r#"
         <nav>
             <div class="nav_item">
                 <a href="./index.html">Homepage</a>
@@ -26,7 +28,8 @@ fn nav_content() -> rocket::response::content::RawHtml<&'static str> {
                 <a href="./login.html">Log In</a>
             </div>
         </nav>
-    "#)
+    "#,
+    )
 }
 
 #[get("/update")]
@@ -35,11 +38,25 @@ fn update() -> &'static str {
 }
 
 #[put("/user_sign_up", data = "<user>")]
-fn user_sign_up(user: Form<User>) -> rocket::response::content::RawHtml<&'static str> {
-    use self::utils::hash_and_salt::{generate_salt, hash_password, extract_hash};
+fn user_sign_up(
+    user: Form<User>,
+    jar: &CookieJar<'_>,
+) -> rocket::response::content::RawHtml<&'static str> {
     use self::utils::database_connection::{establish_connection, find_user_by_username};
+    use self::utils::hash_and_salt::{extract_hash, generate_salt, hash_password};
     use rocket::response::content::RawHtml;
 
+    let existing_cookie = jar.get("auth_token");
+    match existing_cookie {
+        Some(_) => (),
+        None => {
+            return RawHtml(
+                r#"
+                    <h2>Already logged in.</h2>
+                "#,
+            )
+        }
+    }
 
     if user.password.len() < 8 {
         return RawHtml(
@@ -85,7 +102,6 @@ fn user_sign_up(user: Form<User>) -> rocket::response::content::RawHtml<&'static
         );
     }
 
-
     // println!("User info: {:?}", user);
     let generated_salt = generate_salt();
     match hash_password(user.password.as_bytes(), &generated_salt) {
@@ -102,38 +118,38 @@ fn user_sign_up(user: Form<User>) -> rocket::response::content::RawHtml<&'static
                 .secure(true)
                 .build();
 
+            jar.add(("auth_token", login_cookie.to_string()));
+
             println!("Connected to the database.");
             println!("Cookie (not for eating): {}", login_cookie);
             println!("Username: {}", &user.username.to_string());
             println!("Password: {}", &extracted_hash);
             println!("User Salt: {}", &generated_salt.to_string());
             println!("Current working directory: {:?}", std::env::current_dir());
-            let _ = conn
-                .expect("User Info")
-                .execute(
+            let _ = conn.expect("User Info").execute(
                 "INSERT INTO users (username, password_hash, password_salt) VALUES (?1, ?2, ?3)",
-                &[&user.username.to_string().to_lowercase(), &extracted_hash, &generated_salt.to_string()],
-            );
-            // I'm so lazy to write anything more meaningful than that
-            return RawHtml(
-                r#"
-                    <h2>Signed up!</h2>
-                "#,
+                &[
+                    &user.username.to_string().to_lowercase(),
+                    &extracted_hash,
+                    &generated_salt.to_string(),
+                ],
             );
         }
         Err(err) => {
             eprintln!("Internal error signing up: {:?}", err);
-            return RawHtml(r#"
-                <h2>Internal error signing up...</h2>
-            "#);
         }
     }
+    // I'm so lazy to write anything more meaningful than that
+    RawHtml(
+        r#"
+            <h2>Signed up!</h2>
+        "#,
+    )
 }
 #[put("/user_login", data = "<user>")]
 fn user_login(user: Form<User>) {
     //TODO...
 }
-
 
 #[launch]
 fn rocket() -> _ {
