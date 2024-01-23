@@ -2,7 +2,7 @@
 
 // Database
 
-use rusqlite::{Connection, Result, Error, NO_PARAMS};
+use rusqlite::{Connection, Result, Error};
 use crate::User;
 
 pub fn establish_connection() -> Result<Connection, Error> {
@@ -10,26 +10,24 @@ pub fn establish_connection() -> Result<Connection, Error> {
     let db_connection = Connection::open("src/database/users.db")?;
 
     // To ensure the schema is set.
-    let _ = create_user_table(&db_connection)?;
+    let _ = db_connection
+        .execute(
+        "CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password_hash TEXT NOT NULL,
+            password_salt TEXT NOT NULL
+        )",
+        [],
+    )?;
 
     Ok(db_connection)
 }
 
-// Not needed.
-fn create_user_table(conn: &Connection) -> Result<()> {
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL,
-            password_hash TEXT NOT NULL
-        )",
-        [],
-    )?;
-    Ok(())
-}
-
 // Function to find a user by username in the database
-pub fn find_user_by_username(conn_result: &Result<Connection, Error>, username: &str) -> Option<User> {
+pub fn find_user_by_username(conn_result: &Result<Connection, Error>, username_input: &str) -> Option<User> {
+    let username = username_input.to_lowercase();
+
     let conn = match conn_result.as_ref() {
         Ok(conn) => conn,
         Err(_) => return None,
@@ -40,7 +38,7 @@ pub fn find_user_by_username(conn_result: &Result<Connection, Error>, username: 
         Err(_) => return None,
     };
 
-    let mut rows = match stmt.query(&[username]) {
+    let mut rows = match stmt.query([username]) {
         Ok(rows) => rows,
         Err(_) => return None,
     };

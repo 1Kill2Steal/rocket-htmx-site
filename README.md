@@ -11,9 +11,6 @@ Made this project to test out how to work with Rust for websites using Rocket.
 2. Run `cargo run` OR `cargo run --release`
 
 ## TODO:
-- Implement a password regex pattern.
-  Most likely this: `Regex::new(r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$").unwrap();`
-  1 upper case char, 1 lower case char, 1 digit, 1 special char, at least 8 characters long.
 - Implement the `rusqlite` functionality for the log in system.
 - Implement a **private** and **secure** cookie (of the hashed password) to persistently store the session.
 - Implement a **log out** system that removes the cookie.
