@@ -13,6 +13,15 @@ use self::structs::structs::User;
 mod utils;
 // use self::utils::redirects::{ homepage_redirect };
 
+// https://docs.rs/base64/latest/base64/engine/trait.Engine.html#method.encode
+use base64::{
+    alphabet,
+    engine::{self, general_purpose},
+    Engine as _,
+};
+const CUSTOM_ENGINE: engine::GeneralPurpose =
+    engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::PAD);
+
 #[get("/nav_content")]
 fn nav_content() -> rocket::response::content::RawHtml<&'static str> {
     rocket::response::content::RawHtml(
@@ -43,7 +52,7 @@ fn user_sign_up(
     jar: &CookieJar<'_>,
 ) -> rocket::response::content::RawHtml<&'static str> {
     use self::utils::database_connection::{establish_connection, find_user_by_username};
-    use self::utils::hash_and_salt::{extract_hash, generate_salt, hash_password};
+    use self::utils::hash_and_salt::{generate_salt, hash_password};
     use rocket::response::content::RawHtml;
 
     let existing_cookie = jar.get("auth_token");
@@ -90,7 +99,7 @@ fn user_sign_up(
                 </h2>
             "#,
         );
-    }
+    };
 
     let conn = establish_connection();
 
@@ -109,28 +118,25 @@ fn user_sign_up(
             println!("Salt: {}", &generated_salt.to_string());
             println!("Hashed password: {}", password_hash);
 
-            let extracted_hash: std::string::String = extract_hash(&password_hash);
+            println!("password hash: {}", &password_hash);
 
-            println!("Extracted hash: {}", extracted_hash);
-
-            let login_cookie = Cookie::build(extracted_hash.clone())
-                .path("/")
-                .secure(true)
-                .build();
+            // TODO: Argon2 hashing instead of base64 encoding on cookie.
+            let encoded_hash = CUSTOM_ENGINE.encode(&password_hash);
+            let login_cookie = Cookie::build(encoded_hash).path("/").secure(true).build();
 
             jar.add(("auth_token", login_cookie.to_string()));
 
             println!("Connected to the database.");
             println!("Cookie (not for eating): {}", login_cookie);
             println!("Username: {}", &user.username.to_string());
-            println!("Password: {}", &extracted_hash);
+            println!("Password: {}", &password_hash);
             println!("User Salt: {}", &generated_salt.to_string());
             println!("Current working directory: {:?}", std::env::current_dir());
             let _ = conn.expect("User Info").execute(
                 "INSERT INTO users (username, password_hash, password_salt) VALUES (?1, ?2, ?3)",
-                &[
+                [
                     &user.username.to_string().to_lowercase(),
-                    &extracted_hash,
+                    &password_hash,
                     &generated_salt.to_string(),
                 ],
             );
@@ -146,8 +152,8 @@ fn user_sign_up(
         "#,
     )
 }
-#[put("/user_login", data = "<user>")]
-fn user_login(user: Form<User>) {
+#[put("/user_login", data = "<_user>")]
+fn user_login(_user: Form<User>) {
     //TODO...
 }
 

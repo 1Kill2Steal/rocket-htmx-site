@@ -26,8 +26,11 @@ pub fn hash_password(
     Ok(password_hash.to_string())
 }
 
+// nevermind clearly idk how hashes work.
+/*
 pub fn extract_hash(hashed_password: &str) -> std::string::String {
     let parts: Vec<&str> = hashed_password.split('$').collect();
     // last part
     parts[parts.len() - 1].to_string()
 }
+*/

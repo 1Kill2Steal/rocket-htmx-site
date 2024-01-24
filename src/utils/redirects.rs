@@ -2,6 +2,7 @@
 
 use rocket::response::Redirect;
 
-pub fn homepage_redirect() -> Redirect {
+// TODO
+pub fn _homepage_redirect() -> Redirect {
     Redirect::to("/")
 }
